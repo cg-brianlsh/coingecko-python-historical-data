@@ -63,11 +63,12 @@ def get_historical_prices_range(
 
 
 if __name__ == "__main__":
-    # Fetch Bitcoin data for a 6-month window
-    btc_h1_2024 = get_historical_prices_range(
+    # Fetch Bitcoin data for a 3-month window (Q4 2025)
+    # Note: Demo API users have access to past 365 days of data
+    btc_q4_2025 = get_historical_prices_range(
         coin_id="bitcoin",
-        start_date="2024-01-01",
-        end_date="2024-06-30"
+        start_date="2025-10-01",
+        end_date="2025-12-31"
     )
-    print(f"Fetched {len(btc_h1_2024)} data points for H1 2024")
-    print(btc_h1_2024.head())
+    print(f"Fetched {len(btc_q4_2025)} data points for Q4 2025")
+    print(btc_q4_2025.head())
