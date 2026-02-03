@@ -37,8 +37,10 @@ def get_price_on_date(coin_id: str, date: str) -> dict:
 
 
 if __name__ == "__main__":
-    # Get Ethereum's price on the day of The Merge (September 15, 2022)
-    eth_merge_day = get_price_on_date("ethereum", "15-09-2022")
-    print("Ethereum on The Merge day:")
-    print(f"  Price: ${eth_merge_day['price_usd']:,.2f}")
-    print(f"  Market Cap: ${eth_merge_day['market_cap_usd']:,.0f}")
+    # Get Bitcoin's price on a specific date (August 1, 2025)
+    # Note: Demo API users have access to past 365 days of data
+    # Date format is DD-MM-YYYY (European format)
+    btc_snapshot = get_price_on_date("bitcoin", "01-08-2025")
+    print(f"Bitcoin on {btc_snapshot['date']}:")
+    print(f"  Price: ${btc_snapshot['price_usd']:,.2f}")
+    print(f"  Market Cap: ${btc_snapshot['market_cap_usd']:,.0f}")
