@@ -55,8 +55,8 @@ def export_multiple_coins(coin_ids: list, days: int, filename: str = "multi_coin
 
 
 if __name__ == "__main__":
-    # Export single coin
-    export_coin_data_to_csv("bitcoin", days=365, filename="bitcoin_2024.csv")
+    # Export single coin (90 days)
+    export_coin_data_to_csv("bitcoin", days=90, filename="bitcoin_90d.csv")
     
     # Export multiple coins
     coins = ["bitcoin", "ethereum", "solana"]
