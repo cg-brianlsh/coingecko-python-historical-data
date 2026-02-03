@@ -1,8 +1,8 @@
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime
-from config import BASE_URL, get_headers
+from datetime import datetime, timedelta
+from config import BASE_URL, get_headers, USE_PRO_API
 
 def date_to_unix(date_string: str) -> int:
     """Convert YYYY-MM-DD to UNIX timestamp."""
@@ -10,14 +10,23 @@ def date_to_unix(date_string: str) -> int:
     return int(dt.timestamp())
 
 
-def fetch_bitcoin_5_years() -> pd.DataFrame:
-    """Fetch 5 years of Bitcoin price data."""
+def fetch_bitcoin_historical(start_date: str, end_date: str) -> pd.DataFrame:
+    """
+    Fetch Bitcoin price data for a specified date range.
+    
+    Args:
+        start_date: Start date in YYYY-MM-DD format
+        end_date: End date in YYYY-MM-DD format
+    
+    Returns:
+        DataFrame with timestamp index and price column
+    """
     endpoint = f"{BASE_URL}/coins/bitcoin/market_chart/range"
     
     params = {
         "vs_currency": "usd",
-        "from": date_to_unix("2019-01-01"),
-        "to": date_to_unix("2024-01-01")
+        "from": date_to_unix(start_date),
+        "to": date_to_unix(end_date)
     }
     
     response = requests.get(endpoint, headers=get_headers(), params=params)
@@ -49,7 +58,7 @@ def calculate_metrics(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def plot_price_with_sma(df: pd.DataFrame, output_file: str = "bitcoin_5yr_analysis.png"):
+def plot_price_with_sma(df: pd.DataFrame, output_file: str = "bitcoin_analysis.png"):
     """Create a visualization of price with moving average."""
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
     
@@ -57,7 +66,7 @@ def plot_price_with_sma(df: pd.DataFrame, output_file: str = "bitcoin_5yr_analys
     ax1.plot(df.index, df["price"], label="BTC Price", alpha=0.8)
     ax1.plot(df.index, df["sma_30"], label="30-Day SMA", color="orange", alpha=0.8)
     ax1.set_ylabel("Price (USD)")
-    ax1.set_title("Bitcoin Price: 2019-2024")
+    ax1.set_title("Bitcoin Price Analysis")
     ax1.legend()
     ax1.grid(True, alpha=0.3)
     
@@ -76,8 +85,26 @@ def plot_price_with_sma(df: pd.DataFrame, output_file: str = "bitcoin_5yr_analys
 
 
 if __name__ == "__main__":
-    print("Fetching 5 years of Bitcoin data...")
-    btc_data = fetch_bitcoin_5_years()
+    # ==========================================================================
+    # Date Range Configuration
+    # ==========================================================================
+    # Demo API: Access to past 365 days of historical data
+    # Pro API: Access to full historical data back to 2013
+    # ==========================================================================
+    
+    # Calculate date range (past 365 days works for all plans)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=365)
+    
+    # Format dates
+    start_str = start_date.strftime("%Y-%m-%d")
+    end_str = end_date.strftime("%Y-%m-%d")
+    
+    plan_type = "Pro" if USE_PRO_API else "Demo"
+    print(f"Using {plan_type} API plan")
+    print(f"Fetching Bitcoin data from {start_str} to {end_str}...")
+    
+    btc_data = fetch_bitcoin_historical(start_str, end_str)
     print(f"Retrieved {len(btc_data)} data points")
     
     print("Calculating metrics...")
@@ -91,11 +118,11 @@ if __name__ == "__main__":
     print(f"  End price: ${btc_data['price'].iloc[-1]:,.2f}")
     print(f"  Total return: {btc_data['cumulative_return'].iloc[-1]:.1f}%")
     print(f"  Average daily return: {btc_data['daily_return'].mean():.3f}%")
-    print(f"  Max drawdown day: {btc_data['daily_return'].min():.1f}%")
+    print(f"  Max single-day loss: {btc_data['daily_return'].min():.1f}%")
     
     print("\nGenerating visualization...")
     plot_price_with_sma(btc_data)
     
     # Export to CSV for further analysis
-    btc_data.to_csv("bitcoin_5yr_backtesting.csv")
-    print("Data exported to bitcoin_5yr_backtesting.csv")
+    btc_data.to_csv("bitcoin_backtesting.csv")
+    print("Data exported to bitcoin_backtesting.csv")
